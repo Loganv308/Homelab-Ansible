@@ -1,0 +1,27 @@
+all:
+  children:
+    proxmox:
+      hosts:
+        antonlabsnode01:
+          ansible_host: "{{ vault_antonlabsnode01 }}"
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+        antonlabsnode02: 
+          ansible_host: "{{ vault_antonlabsnode02 }}"
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+        antonlabsnode03:
+          ansible_host: "{{ vault_antonlabsnode03 }}"
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+    
+    linux:
+      hosts:
+        antonsecure:
+          ansible_host: "{{ vault_antonsecure }}"
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+      
+      vars:
+        ansible_user: root
+        ansible_python_interpreter: /usr/bin/python3

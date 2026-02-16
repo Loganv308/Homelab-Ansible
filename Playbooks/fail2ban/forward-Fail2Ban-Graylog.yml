@@ -1,0 +1,38 @@
+---
+- name: Forward Fail2Ban Logs to Graylog
+  hosts: proxmox
+  become: true
+  serial: 1
+  vars_files:
+    - ../../group_vars/all/vault.yml
+
+  tasks:
+  - name: Configure rsyslog forwarding for Fail2Ban
+    copy:
+      dest: /etc/rsyslog.d/30-fail2ban-graylog.conf
+      content: |
+        module(load="omfwd")
+
+        if $programname == 'fail2ban' then {
+          action(
+            type="omfwd"
+            target="{{ graylog_server }}"
+            port="{{ graylog_port }}"
+            protocol="tcp"
+            template="RSYSLOG_SyslogProtocol23Format"
+            action.resumeRetryCount="-1"
+            queue.type="linkedlist"
+            queue.size="10000"
+          )
+          stop
+        }
+      owner: root
+      group: root
+      mode: '0644'
+    notify: Restart rsyslog
+
+  handlers:
+    - name: Restart rsyslog
+      service:
+        name: rsyslog
+        state: restarted

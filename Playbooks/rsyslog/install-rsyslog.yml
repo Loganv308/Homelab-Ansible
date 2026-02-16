@@ -1,0 +1,19 @@
+---
+- name: Install and Configure Rsyslog
+  hosts: proxmox
+  become: true
+  serial: 1
+
+  tasks:
+
+    - name: Ensure rsyslog is installed
+      ansible.builtin.apt:
+        name: rsyslog
+        state: present
+        update_cache: yes
+
+    - name: Ensure rsyslog service is running and enabled
+      ansible.builtin.service:
+        name: rsyslog
+        state: started
+        enabled: yes

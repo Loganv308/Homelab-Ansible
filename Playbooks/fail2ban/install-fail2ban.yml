@@ -1,0 +1,47 @@
+---
+- name: Install and Configure Fail2Ban on Proxmox
+  hosts: proxmox
+  become: true
+  serial: 1
+
+  tasks:
+
+    - name: Install fail2ban
+      apt:
+        name: fail2ban
+        state: present
+        update_cache: yes
+    # Change "ignoreip" based on your IP schema. Currently, it whitelists tailscale and local LAN network.
+    - name: Configure fail2ban jail.local
+      copy:
+        dest: /etc/fail2ban/jail.local
+        content: |
+          [DEFAULT]
+          bantime = 2h
+          findtime = 10m
+          maxretry = 5
+          backend = systemd
+          ignoreip = 127.0.0.1/8 ::1 100.64.0.0/10 192.168.1.0/24
+
+          [sshd]
+          enabled = true
+          port = ssh
+          logpath = %(sshd_log)s
+          backend = systemd
+          action = %(action_mwl)s
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart fail2ban
+
+    - name: Ensure fail2ban is running
+      service:
+        name: fail2ban
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: Restart fail2ban
+      service:
+        name: fail2ban
+        state: restarted
