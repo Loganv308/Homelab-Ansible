@@ -1,6 +1,6 @@
 ---
 - name: Update and upgrade Proxmox nodes
-  hosts: proxmox
+  hosts: linux
   become: true
   serial: 1
 

@@ -11,21 +11,17 @@
     copy:
       dest: /etc/rsyslog.d/30-fail2ban-graylog.conf
       content: |
-        module(load="omfwd")
+        module(load="imfile")
+        
+        input(type="imfile"
+          File="/var/log/fail2ban.log"
+          Tag="fail2ban:"
+          StateFile="stat-fail2ban"
+          Severity="info"
+          Facility="local0")
 
-        if $programname == 'fail2ban' then {
-          action(
-            type="omfwd"
-            target="{{ graylog_server }}"
-            port="{{ graylog_port }}"
-            protocol="tcp"
-            template="RSYSLOG_SyslogProtocol23Format"
-            action.resumeRetryCount="-1"
-            queue.type="linkedlist"
-            queue.size="10000"
-          )
-          stop
-        }
+        if $programname == 'fail2ban' then @@{{ graylog_server }}:{{ graylog_port }};RSYSLOG_SyslogProtocol23Format
+        & stop
       owner: root
       group: root
       mode: '0644'
