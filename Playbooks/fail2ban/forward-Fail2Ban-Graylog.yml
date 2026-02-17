@@ -1,6 +1,6 @@
 ---
 - name: Forward Fail2Ban Logs to Graylog
-  hosts: proxmox
+  hosts: all
   become: true
   serial: 1
   vars_files:
@@ -26,6 +26,28 @@
       group: root
       mode: '0644'
     notify: Restart rsyslog
+
+  - name: Verify rsyslog config exists
+    stat:
+      path: /etc/rsyslog.d/30-fail2ban-graylog.conf
+    register: rsyslog_conf
+
+  - name: Fail if rsyslog config is missing
+    fail:
+      msg: "Rsyslog forwarding config is missing!"
+    when: not rsyslog_conf.stat.exists
+
+  - name: Test connectivity to Graylog server
+    wait_for:
+      host: "{{ graylog_server }}"
+      port: "{{ graylog_port }}"
+      timeout: 5
+
+  - name: Generate test fail2ban log line
+    lineinfile:
+      path: /var/log/fail2ban.log
+      line: "TEST: {{ ansible_date_time.iso8601 }} fail2ban log forwarding test"
+      create: yes
 
   handlers:
     - name: Restart rsyslog
