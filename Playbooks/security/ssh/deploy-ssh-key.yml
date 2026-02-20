@@ -1,0 +1,41 @@
+---
+- name: Deploy SSH keys to LXC containers
+  hosts: all
+  become: false
+  vars:
+    ssh_keys:
+      antonlabspi: /root/.ssh/antonlabspi_key.pub
+      antonsecure: /root/.ssh/antonsecure_key.pub
+      backrest: /root/.ssh/backrest_key.pub
+      bazarr: /root/.ssh/bazarr_key.pub
+      beszel: /root/.ssh/beszel_key.pub
+      cleanuparr: /root/.ssh/cleanuparr_key.pub
+      code: /root/.ssh/code_key.pub
+      crafty-controller: /root/.ssh/crafty-controller_key.pub
+      graylog: /root/.ssh/graylog_key.pub
+      homarr: /root/.ssh/homarr_key.pub
+      immich: /root/.ssh/immich_key.pub
+      jellyseerr: /root/.ssh/jellyseerr_key.pub
+      n8n: /root/.ssh/n8n_key.pub
+      paperless: /root/.ssh/paperless_key.pub
+      planka: /root/.ssh/planka_key.pub
+      postgresql: /root/.ssh/postgresql_key.pub
+      prowlarr: /root/.ssh/prowlarr_key.pub
+      sonarr: /root/.ssh/sonarr_key.pub
+      splunk: /root/.ssh/splunk_key.pub
+      torrent: /root/.ssh/torrent_key.pub
+      uptimekama: /root/.ssh/uptimekama_key.pub
+      vaultwarden: /root/.ssh/vaultwarden_key.pub
+      wazuh: /root/.ssh/wazuh_key.pub
+  tasks:
+    - name: Ensure ~/.ssh exists
+      file:
+        path: ~/.ssh
+        state: directory
+        mode: '0700'
+
+    - name: Deploy authorized key
+      authorized_key:
+        user: root
+        state: present
+        key: "{{ lookup('file', ssh_keys[inventory_hostname]) }}"

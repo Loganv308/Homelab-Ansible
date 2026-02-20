@@ -6,14 +6,19 @@ all:
           ansible_host: 192.168.1.150
           ansible_user: root
           ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: /root/.ssh/antonlabsnode01_key
+        
         antonlabsnode02:
           ansible_host: 192.168.1.103
           ansible_user: root
           ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: /root/.ssh/antonlabsnode02_key
+        
         antonlabsnode03:
           ansible_host: 192.168.1.25
           ansible_user: root
           ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: /root/.ssh/antonlabsnode03_key
     
     linux:
       hosts:
@@ -21,20 +26,162 @@ all:
           ansible_host: 192.168.1.97
           ansible_user: root
           ansible_python_interpreter: /usr/bin/python3
-          ansible_ssh_private_key_file: ~/.ssh/id_ed25519_ansible
-        SIEM_PC: 
+          ansible_ssh_private_key_file: /root/.ssh/antonsecure_key
+        
+        SIEM: 
           ansible_host: 192.168.1.200
           ansible_user: root
           ansible_python_interpreter: /usr/bin/python3
-          ansible_ssh_private_key_file: ~/.ssh/id_ed25519_ansible
+          ansible_ssh_private_key_file: ~/.ssh/SIEM_key
+
+        antonlabspi:
+          ansible_host: 192.168.1.80
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/antonlabspi_key
 
     controller:
       hosts:
-        ansible_controller:
+        ansible_host:
           ansible_host: localhost
           ansible_connection: local
           ansible_user: root
           ansible_python_interpreter: /usr/bin/python3
+    
+    lxc:
+      hosts:
+        backrest:
+          ansible_host: 192.168.1.61
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/backrest_key
+        
+        bazarr:
+          ansible_host: 192.168.1.44
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/bazarr_key
+
+        beszel:
+          ansible_host: 192.168.1.28
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/beszel_key
+
+        cleanuparr:
+          ansible_host: 192.168.1.107
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/cleanuparr_key
+        
+        code:
+          ansible_host: 192.168.1.110
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/code_key
+
+        crafty-controller:
+          ansible_host: 192.168.1.22
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/crafty-controller_key
+
+        graylog:
+          ansible_host: 192.168.1.197
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/graylog_key
+        
+        homarr:
+          ansible_host: 192.168.1.165
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/homarr_key
+
+        immich:
+          ansible_host: 192.168.1.244
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/immich_key
+
+        jellyseerr:
+          ansible_host: 192.168.1.130
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/jellyseerr_key
+
+        n8n:
+          ansible_host: 192.168.1.243
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/n8n_key
+
+        paperless:
+          ansible_host: 192.168.1.222
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/paperless_key
+
+        pihole:
+          ansible_host: 192.168.1.153
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/pihole2_key
+
+        planka:
+          ansible_host: 192.168.1.246
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/planka_key
+
+        postgresql:
+          ansible_host: 192.168.1.212
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/postgresql_key
+
+        prowlarr:
+          ansible_host: 192.168.1.32
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/prowlarr_key
+
+        sonarr:
+          ansible_host: 192.168.1.155
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/sonarr_key
+
+        splunk:
+          ansible_host: 192.168.1.23
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/splunk_key
+
+        torrent:
+          ansible_host: 192.168.1.105
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/torrent_key
+
+        uptimekama:
+          ansible_host: 192.168.1.98
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/uptimekama_key
+
+        vaultwarden:
+          ansible_host: 192.168.1.141
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/vaulwarden_key
+
+        wazuh:
+          ansible_host: 192.168.1.126
+          ansible_user: root
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_ssh_private_key_file: ~/.ssh/wazuh_key
+
       vars:
         ansible_user: root
         ansible_python_interpreter: /usr/bin/python3

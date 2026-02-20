@@ -1,0 +1,7 @@
+---
+- name: Install and Configure Wazuh-Agent
+  hosts: all
+  become: true
+  serial: 1
+
+  tasks:
