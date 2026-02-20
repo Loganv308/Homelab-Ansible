@@ -2,7 +2,6 @@
 - name: Install and Configure Rsyslog
   hosts: all
   become: true
-  serial: 1
 
   tasks:
 

@@ -1,7 +1,11 @@
 ---
-- name: Update and upgrade Proxmox nodes
+- name: Update and upgrade nodes with Graylog integration
   hosts: all
   become: true
+  serial: 1
+
+  vars_files:
+  - ../../group_vars/all/vault.yml
 
   tasks:
     - name: Update apt cache
@@ -9,9 +13,11 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Perform dist-upgrade
+    - name: Perform full-upgrade
       ansible.builtin.apt:
-        upgrade: dist
+        upgrade: full
+      register: upgrade_result
+      failed_when: false
 
     - name: Remove unused packages
       ansible.builtin.apt:
@@ -20,3 +26,18 @@
     - name: Clean apt cache
       ansible.builtin.apt:
         autoclean: yes
+
+    - name: Send upgrade event to Graylog via GELF
+      ansible.builtin.uri:
+        url: "http://{{ graylog_server }}:12201/gelf"
+        method: POST
+        body_format: json
+        body:
+          version: "1.1"
+          host: "{{ inventory_hostname }}"
+          short_message: "Node upgrade completed"
+          event_type: "node_upgrade"
+          changed: "{{ upgrade_result.changed | default(false) | lower }}"
+          timestamp: "{{ ansible_date_time.iso8601 }}"
+        status_code: [200, 202]
+      when: upgrade_result is defined

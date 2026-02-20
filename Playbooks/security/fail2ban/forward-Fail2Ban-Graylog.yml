@@ -4,7 +4,7 @@
   become: true
   serial: 1
   vars_files:
-    - ../../group_vars/all/vault.yml
+    - ../../../group_vars/all/vault.yml
 
   tasks:
   - name: Configure rsyslog forwarding for Fail2Ban
