@@ -1,0 +1,122 @@
+---
+- name: Deploy CrowdSec to all Linux nodes
+  hosts: all
+  become: true
+  vars:
+    crowdsec_whitelist_name: "PromiseLAN"
+    crowdsec_whitelist_cidr:
+      - "192.168.1.0/24"
+    crowdsec_db_path: "/var/lib/crowdsec/data/crowdsec.db"
+    crowdsec_enroll_key: "{{ crowdsec_key }}"  # Enrollment key from crowdsec portal
+
+  tasks:
+    - name: Install CrowdSec using the official script
+      shell: "curl -s https://install.crowdsec.net | sh"
+      args:
+        creates: /usr/bin/crowdsec
+
+    - name: Ensure crowdsec package is installed
+      apt:
+        name: crowdsec
+        state: present
+
+    - name: Backup old CrowdSec config (optional)
+      copy:
+        src: /etc/crowdsec/config.yaml
+        dest: "/etc/crowdsec/config.yaml.bak_{{ ansible_date_time.iso8601 }}"
+        remote_src: yes
+      ignore_errors: yes  # in case the file doesn't exist
+
+    - name: Remove old CrowdSec config
+      file:
+        path: /etc/crowdsec/config.yaml
+        state: absent
+
+    - name: Deploy fresh CrowdSec config
+      copy:
+        dest: /etc/crowdsec/config.yaml
+        content: |
+          common:
+            daemonize: true
+            log_media: file
+            log_level: info
+            log_dir: /var/log/
+            log_max_size: 20
+            compress_logs: true
+            log_max_files: 10
+          config_paths:
+            config_dir: /etc/crowdsec/
+            data_dir: /var/lib/crowdsec/data/
+            simulation_path: /etc/crowdsec/simulation.yaml
+            hub_dir: /etc/crowdsec/hub/
+            index_path: /etc/crowdsec/hub/.index.json
+            notification_dir: /etc/crowdsec/notifications/
+            plugin_dir: /usr/local/lib/crowdsec/plugins/
+          crowdsec_service:
+            #console_context_path: /etc/crowdsec/console/context.yaml
+            acquisition_path: /etc/crowdsec/acquis.yaml
+            acquisition_dir: /etc/crowdsec/acquis.d
+            parser_routines: 1
+          cscli:
+            output: human
+            color: auto
+          db_config:
+            log_level: info
+            type: sqlite
+            db_path: /var/lib/crowdsec/data/crowdsec.db
+            use_wal: true
+            flush:
+              max_items: 5000
+              max_age: 7d
+
+          plugin_config:
+            user: nobody
+            group: nogroup
+
+          api:
+            client:
+              insecure_skip_verify: false
+              credentials_path: /etc/crowdsec/local_api_credentials.yaml
+            server:
+              log_level: info
+              listen_uri: 127.0.0.1:8080
+              profiles_path: /etc/crowdsec/profiles.yaml
+              console_path: /etc/crowdsec/console.yaml
+              online_client:
+                credentials_path: /etc/crowdsec/online_api_credentials.yaml
+              trusted_ips:
+                - 127.0.0.1
+                - ::1
+
+          prometheus:
+            enabled: true
+            level: full
+            listen_addr: 127.0.0.1
+            listen_port: 6060
+
+    - name: Add whitelist for local LAN
+      copy:
+        dest: "/etc/crowdsec/parsers/s02-enrich/01-my-whitelist.yaml"
+        content: |
+          name: {{ crowdsec_whitelist_name }}
+          description: "Whitelist events from my IP range"
+          whitelist:
+            reason: "My IP range"
+            cidr:
+            {% for cidr in crowdsec_whitelist_cidr %}
+              - "{{ cidr }}"
+            {% endfor %}
+
+    - name: Restart CrowdSec service
+      systemd:
+        name: crowdsec
+        state: restarted
+        enabled: yes
+
+    - name: Enroll CrowdSec node
+      shell: "cscli console enroll {{ crowdsec_enroll_key }}"
+      register: enroll_output
+
+    - name: Show enrollment output
+      debug:
+        var: enroll_output.stdout_lines
