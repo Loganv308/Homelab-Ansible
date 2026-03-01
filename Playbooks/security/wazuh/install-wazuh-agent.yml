@@ -1,7 +1,48 @@
 ---
-- name: Install and Configure Wazuh-Agent
+- name: Ensure Wazuh Agent is installed and running
   hosts: all
   become: true
-  serial: 1
+
+  vars:
+    wazuh_version: "4.14.3-1"
+    wazuh_manager_ip: "192.168.1.126"
+    wazuh_deb: "wazuh-agent_{{ wazuh_version }}_amd64.deb"
+    wazuh_url: "https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/{{ wazuh_deb }}"
+    wazuh_tmp_path: "/tmp/{{ wazuh_deb }}"
 
   tasks:
+
+    - name: Ensure required dependencies are present
+      apt:
+        name: lsb-release
+        state: present
+        update_cache: yes
+
+    - name: Download Wazuh agent package
+      get_url:
+        url: "{{ wazuh_url }}"
+        dest: "{{ wazuh_tmp_path }}"
+        mode: '0644'
+
+    - name: Install Wazuh agent if missing
+      apt:
+        deb: "{{ wazuh_tmp_path }}"
+      environment:
+        WAZUH_MANAGER: "{{ wazuh_manager_ip }}"
+        WAZUH_AGENT_NAME: "{{ inventory_hostname }}"
+      register: wazuh_install
+      ignore_errors: yes
+
+    - name: Reload systemd daemon
+      command: systemctl daemon-reload
+      changed_when: false
+
+    - name: Enable wazuh-agent service
+      systemd:
+        name: wazuh-agent
+        enabled: yes
+
+    - name: Start wazuh-agent service
+      systemd:
+        name: wazuh-agent
+        state: started
